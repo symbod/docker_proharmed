@@ -14,7 +14,7 @@
 
 # Load required libraries -----
 suppressPackageStartupMessages({
-  reticulate::use_virtualenv("/home/python_env", required = TRUE)
+  #reticulate::use_virtualenv("/home/python_env", required = TRUE)
   library("proharmed")
   
   required_packages <- c("optparse","data.table","dplyr","stringr","ggrepel", "rjson")
@@ -24,12 +24,31 @@ suppressPackageStartupMessages({
   }
 })
 
+print(getwd())
+
 # Source the configuration file -----
+#source("../docker_proharmed/config.R")
 source("config.R")
+
+# Function to print parameter values and types
+print_params <- function(params, prefix = "") {
+  for (name in names(params)) {
+    value <- params[[name]]
+    cat("Parameter:", paste0(prefix, name), "\n")
+    if (is.list(value)) {
+      print_params(value, prefix = paste0(prefix, name, "."))  # Recursive call for nested lists
+    } else {
+      cat("Value:", value, "\n")
+      cat("Type:", typeof(value), "\n\n")
+    }
+  }
+}
 
 # ProHarMeD Harmonization -----------------
 
-## Parse arguments -----
+# Debug: Print arguments and parameters
+cat("Running ProHarMeD with the following parameters:\n")
+print_params(params)
 
 # save arguments
 count_file_path <- params$count_file_path
@@ -64,8 +83,7 @@ save_data_frames <- function(in_list, subdir) {
 
 ## Filter Protein IDs ----
 
-### Set Preferences ----
-
+cat("Filtering protein IDs\n")
 # Use parameters from config.R
 filtered_prot_results <- proharmed::filter_protein_ids(
   data = count_data, 
@@ -80,7 +98,7 @@ filtered_prot_results <- proharmed::filter_protein_ids(
 filtered_prot_data <- filtered_prot_results$Modified_Data
 
 ### Save Data ----
-
+cat("Saving filtered protein data\n")
 subdir <- file.path(out_dir, "filtered_protein_ids", "")
 dir.create(subdir, recursive = TRUE, showWarnings = FALSE)
 
@@ -88,7 +106,7 @@ dir.create(subdir, recursive = TRUE, showWarnings = FALSE)
 save_data_frames(filtered_prot_results, subdir)
 
 ### Create Plots ----
-
+cat("Creating plots for filtered data\n")
 overview_plots <- proharmed::create_overview_plot(
   logging = filtered_prot_results$Overview_Log, 
   out_dir = subdir, 
@@ -106,7 +124,7 @@ detailed_plot <- proharmed::create_filter_detailed_plot(
 
 
 ## Remapp Gene Names ----
-
+cat("Remapping gene names\n")
 # Use parameters from config.R
 remapped_prot_results <- proharmed::remap_genenames(
   data =  filtered_prot_data, 
@@ -124,6 +142,7 @@ remapped_prot_data <- remapped_prot_results$Modified_Data
 
 ### Save Data ----
 
+cat("Saving remapped gene data\n")
 subdir <- file.path(out_dir, "remap_gene_names", "")
 dir.create(subdir, recursive = TRUE, showWarnings = FALSE)
 
@@ -132,6 +151,7 @@ save_data_frames(remapped_prot_results, subdir)
 
 ### Create Plots ----
 
+cat("Creating plots for remapped gene data\n")
 overview_plots <- proharmed::create_overview_plot(
   logging = remapped_prot_results$Overview_Log, 
   out_dir = subdir, 
@@ -139,7 +159,7 @@ overview_plots <- proharmed::create_overview_plot(
 )
 
 ## Map Orthologs ----
-
+cat("Mapping orthologs\n")
 # Use parameters from config.R
 orthologs_prot_results <- proharmed::map_orthologs(
   data = remapped_prot_data, 
@@ -153,7 +173,7 @@ orthologs_prot_results <- proharmed::map_orthologs(
 orthologs_prot_data <- orthologs_prot_results$Modified_Data
 
 ### Save Data ----
-
+cat("Saving map ortholog data\n")
 subdir <- file.path(out_dir, "map_orthologs", "")
 dir.create(subdir, recursive = TRUE, showWarnings = FALSE)
 # Save the data.frames in the list to the specified subdirectory
@@ -161,10 +181,11 @@ save_data_frames(orthologs_prot_results, subdir)
 
 ### Create Plots ----
 
+cat("Creating plots for map ortholog data\n")
 overview_plots <- proharmed::create_overview_plot(
   logging = orthologs_prot_results$Overview_Log, 
   out_dir = subdir, 
-  file_type = file_type
+  file_type = params$file_type
 )
 
 detailed_plot <- proharmed::create_ortholog_detailed_plot(
@@ -175,10 +196,10 @@ detailed_plot <- proharmed::create_ortholog_detailed_plot(
 )
 
 ## Final Mapping ----
-
+cat("Final merging\n")
 common_columns <- intersect(names(count_data), names(orthologs_prot_data))
 # Merge the datasets
-harmonized_data <- merge(count_data, orthologs_prot_data, by = common_columns, all.x = TRUE)
+harmonized_data <- merge(as.data.frame(count_data), orthologs_prot_data, by = common_columns, all.x = TRUE)
 
 # Save the final harmonized data to a CSV file
 harmonized_data_path <- file.path(out_dir, "harmonized_data.csv")

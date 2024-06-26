@@ -44,7 +44,7 @@ default_params <- list(
 parser <- OptionParser()
 parser <- add_option(parser, c("-c", "--count_file"), help = "Preprocessed count file")
 parser <- add_option(parser, c("-o", "--out_dir"), help = "Directory for output files", default = "")
-parser <- add_option(parser, "--file_type", help = "Directory for output files", default = "")
+parser <- add_option(parser, "--file_type", help = "Directory for output files", default = "png")
 
 # General
 parser <- add_option(parser, "--protein_column", help = "Name of column with protein IDs", default = "Protein IDs")
