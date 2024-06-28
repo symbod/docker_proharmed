@@ -14,41 +14,40 @@
 
 # Load required libraries -----
 suppressPackageStartupMessages({
-  #reticulate::use_virtualenv("/home/python_env", required = TRUE)
+  #library("reticulate", character.only = TRUE, quietly = TRUE) # for local testing
+  #reticulate::use_virtualenv("/home/python_env", required = TRUE) # for local testing
   library("proharmed")
   
-  required_packages <- c("optparse","data.table","dplyr","stringr","ggrepel", "rjson")
+  required_packages <- c("optparse","data.table","dplyr","stringr","ggrepel", "rjson", "reticulate")
   for(package in required_packages){
     #if(!require(package,character.only = TRUE, quietly = TRUE)) install.packages(package, dependencies = TRUE, quietly = TRUE)
     library(package, character.only = TRUE, quietly = TRUE)
   }
 })
 
-print(getwd())
-
 # Source the configuration file -----
-#source("../docker_proharmed/config.R")
+#source("../docker_proharmed/config.R") # for local testing
 source("config.R")
 
 # Function to print parameter values and types
-print_params <- function(params, prefix = "") {
-  for (name in names(params)) {
-    value <- params[[name]]
-    cat("Parameter:", paste0(prefix, name), "\n")
-    if (is.list(value)) {
-      print_params(value, prefix = paste0(prefix, name, "."))  # Recursive call for nested lists
-    } else {
-      cat("Value:", value, "\n")
-      cat("Type:", typeof(value), "\n\n")
-    }
-  }
-}
+#print_params <- function(params, prefix = "") {
+#  for (name in names(params)) {
+#    value <- params[[name]]
+#    cat("Parameter:", paste0(prefix, name), "\n")
+#    if (is.list(value)) {
+#      print_params(value, prefix = paste0(prefix, name, "."))  # Recursive call for nested lists
+#    } else {
+#      cat("Value:", value, "\n")
+#     cat("Type:", typeof(value), "\n\n")
+#    }
+#  }
+#}
 
 # ProHarMeD Harmonization -----------------
 
 # Debug: Print arguments and parameters
-cat("Running ProHarMeD with the following parameters:\n")
-print_params(params)
+cat("Running ProHarMeD\n")# with the following parameters:\n")
+#print_params(params)
 
 # save arguments
 count_file_path <- params$count_file_path
@@ -108,7 +107,7 @@ save_data_frames(filtered_prot_results, subdir)
 ### Create Plots ----
 cat("Creating plots for filtered data\n")
 overview_plots <- proharmed::create_overview_plot(
-  logging = filtered_prot_results$Overview_Log, 
+  logging = setDT(filtered_prot_results$Overview_Log), 
   out_dir = subdir, 
   file_type = params$file_type
 )
@@ -153,7 +152,7 @@ save_data_frames(remapped_prot_results, subdir)
 
 cat("Creating plots for remapped gene data\n")
 overview_plots <- proharmed::create_overview_plot(
-  logging = remapped_prot_results$Overview_Log, 
+  logging = setDT(remapped_prot_results$Overview_Log), 
   out_dir = subdir, 
   file_type = params$file_type
 )
@@ -183,7 +182,7 @@ save_data_frames(orthologs_prot_results, subdir)
 
 cat("Creating plots for map ortholog data\n")
 overview_plots <- proharmed::create_overview_plot(
-  logging = orthologs_prot_results$Overview_Log, 
+  logging = setDT(orthologs_prot_results$Overview_Log), 
   out_dir = subdir, 
   file_type = params$file_type
 )

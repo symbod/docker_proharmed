@@ -22,7 +22,7 @@ main_script = file("${projectDir}/ProHarMeD.R")
 config_script = file("${projectDir}/config.R")
 
 process proharmed {
-    container 'kadam0/proharmed:0.0.1'
+    container 'kadam0/proharmed:0.0.3'
     publishDir params.output, mode: "copy"
 
     input:

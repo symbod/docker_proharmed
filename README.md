@@ -34,7 +34,7 @@ The pipeline generates several output files and directories:
 - **`filtered_protein_ids` Directory**: Contains filtered protein IDs with relevant details.
 - **`remap_gene_names` Directory**: Contains remapped gene names.
 - **`map_orthologs` Directory**: Contains ortholog mapping results.
-- **`final_mapping_data.csv`**: The final merged dataset after processing.
+- **`harmonized_data.csv`**: The final merged dataset after processing.
 
 Each directory includes data files and visualization plots summarizing the processing steps and outcomes.
 

@@ -10,7 +10,7 @@ default_params <- list(
   
   # Filter Protein IDs Parameters
   filter_protein_ids_params = list(
-    protein_column = "Protein IDs",
+    protein_column = "Protein.IDs",
     organism = "rat",
     rev_con = FALSE,
     keep_empty = FALSE,
@@ -22,7 +22,7 @@ default_params <- list(
   remap_genenames_params = list(
     mode = "uniprot_one",
     protein_column = "FilteredProteinIDs",
-    gene_column = "Gene names",
+    gene_column = "Gene.Names",
     res_column = "RemappedGeneNames",
     skip_filled = TRUE,
     organism = "rat",
